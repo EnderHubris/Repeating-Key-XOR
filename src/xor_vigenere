@@ -1,0 +1,47 @@
+#!/usr/bin/python3
+import sys, argparse
+from vigenere import *
+
+def main():
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument("mode", help="What mode the program runs in",
+                        choices=["keygen","encrypt","decrypt"], type=str)
+    parser.add_argument("-l", "--length", type=int, help="Length of Key to be generated")
+    parser.add_argument("-k", "--key", type=str, help="Value of Key")
+    parser.add_argument("-t", "--text", default="", type=str, help="plain-text message (UTF-8)")
+    parser.add_argument("-e", "--ciphertext", default="", type=str, help="cipher-text message (Hexadecimal)")
+
+    args = parser.parse_args()
+
+    if args.mode == "keygen":
+        if not args.length:
+            print(f"[*] Usage: {sys.argv[0]} keygen [length]")
+            return
+        key = key_gen(args.length)    
+        print("[!] Key-Generated:", key)
+    elif args.mode == "encrypt":
+        if not args.key:
+            print(f"[*] Usage: {sys.argv[0]} encrypt --key [key] --text [message]")
+            return
+        
+        c, err = encrypt(args.text, args.key)
+        if err:
+            print(err)
+            exit(1)
+
+        print("[!] Cipher-Text:", c.hex())
+    elif args.mode == "decrypt":
+        if not args.key:
+            print(f"[*] Usage: {sys.argv[0]} decrypt --key [key] --ciphertext [message]")
+            return
+        
+        m_bytes, err = decrypt(args.ciphertext, args.key)
+        if err:
+            print(err)
+            exit(1)
+
+        print("[!] Text:", m_bytes.decode("utf-8"))
+
+if __name__ == "__main__":
+    main()
